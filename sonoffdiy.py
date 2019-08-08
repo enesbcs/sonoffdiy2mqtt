@@ -1,3 +1,9 @@
+#############################################################################
+####################### SonoffDIY management library#########################
+#############################################################################
+#
+# Copyright (C) 2019 by Alexander Nagy - https://bitekmindenhol.blog.hu/
+#
 import time
 import json
 import threading
