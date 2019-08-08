@@ -1,7 +1,7 @@
 # sonoffdiy2mqtt
 Sonoff DIY mode devices to MQTT bridge
 
-#Installation
+# Installation
 sudo apt install python3-pip 
 git clone https://github.com/enesbcs/sonoffdiy2mqtt.git
 cd sonoffdiy2mqtt
