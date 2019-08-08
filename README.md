@@ -1,5 +1,6 @@
 # sonoffdiy2mqtt
 Sonoff DIY mode devices to MQTT bridge
+(Sonoff Basic R3 and Sonoff Mini)
 
 # Installation
 ```
