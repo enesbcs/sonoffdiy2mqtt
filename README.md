@@ -23,3 +23,12 @@ Necessarry Domoticz Hardwares: "MQTT Client Gateway with Lan interface" and "Dum
 There are an other mode, if inside the "sonoffdiy2mqtt.json" file the "mqtt_type": "shelly" is setted then the sonoffdiy2mqtt script translates incoming mDNS messages to Shelly API compatible MQTT messages and paths, which can be intercepted by the Domoticz hardware "Shelly MQTT". ( https://github.com/enesbcs/Shelly_MQTT ) 
 
 In this mode IDX is not required, but make sure to enable device self-learning.
+
+# Earlier Sonoff Device LAN mode support
+https://github.com/enesbcs/sonofflan2mqtt
+
+| PayPal |
+|-------|
+|  [![donate](https://img.shields.io/badge/donate-PayPal-blue.svg)](https://www.paypal.me/rpieasy) |
+If you like this project, or you wants to support the development, you can do that with the paypal link above or by doing pull requests, if you knew Python language.
+[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I5UT4H)
