@@ -16,6 +16,7 @@ At first run without much configuration the sonoffdiy2mqtt.py will write out to 
 1/
 In the "sonoffdiy2mqtt.json" file the default mode is "mqtt_type": "domoticz".
 The Sonoff Device ID (ten character hexadecimal) has to be added to the "sonoff_device_id" fields and its correspondent Domoticz Dummy device IDX has to be added in the same line to the "outlet0" field.
+Default Publish Topic is "domoticz/in" and Subscribe is "domoticz/out", leave empty if you are not sure what you are doing.
 
 Necessarry Domoticz Hardwares: "MQTT Client Gateway with Lan interface" and "Dummy"
 

@@ -53,12 +53,16 @@ def sonoff_callback(devid,state,rssi,outlet=0):
 
 signal.signal(signal.SIGINT, signal_handler)
 try:
- with open("sonoffdiy2mqtt.json") as f:
+ os.chdir(os.path.dirname(os.path.realpath(__file__))) # go to our own directory
+except:
+ pass
+try:
+ with open("sonoffdiy2mqtt.json") as f:  # open config file
   ssettings = json.load(f)
 except Exception as e:
  print("sonoffdiy2mqtt.json can not be read! ",str(e))
  ssettings = []
-
+ sys.exit(1)
 if ssettings["mqtt_type"]=="domoticz":
  se = False
 else:
@@ -72,11 +76,11 @@ try:
  MQTT_TOPIC_PUB = ssettings["mqtt_topic_pub"].strip()
  MQTT_TOPIC_SUB = ssettings["mqtt_topic_sub"].strip()
  if ssettings["mqtt_type"]=="domoticz":
-  if ssettings["mqtt_topic_pub"].strip()=="":
+  if ssettings["mqtt_topic_pub"].strip()=="": # auto-fill with correct values if empty
    MQTT_TOPIC_PUB = "domoticz/in"
-  if ssettings["mqtt_topic_sub"].strip()=="":
+  if ssettings["mqtt_topic_sub"].strip()=="": # auto-fill with correct values if empty
    MQTT_TOPIC_SUB = "domoticz/out"
- if ssettings["mqtt_type"]=="shelly":
+ if ssettings["mqtt_type"]=="shelly":         # auto-fill with correct values if empty
    MQTT_TOPIC_PUB = "shellies/"
    MQTT_TOPIC_SUB = "shellies/#"
  if ssettings["mqtt_address"]:
