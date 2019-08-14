@@ -8,6 +8,7 @@ import time
 import json
 import threading
 import requests # pip3 install requests
+import misc
 
 def parseAddress(address):
         add_list = []
@@ -16,7 +17,7 @@ def parseAddress(address):
         add_str = str(add_list[0]) + "." + str(add_list[1]) + "." + str(add_list[2])+ "." + str(add_list[3])
         return add_str
 
-def getstate(instate):
+def getstatus(instate):
  s = str(instate).lower().strip()
  if s=="on" or s=="1":
   return 1
@@ -51,21 +52,20 @@ class SonoffDIYListener:
          del self.devices[name]
         except:
          pass
-        print("Service %s removed" % (name,))
+        misc.addLog(0,"Service "+str(name)+" removed")
 
     def add_service(self, zeroconf, type, name):
         info = zeroconf.get_service_info(type, name)
         if info.properties[b'type']==b'diy_plug':
          self.devices[name] = type
          self.status[name] = -1
-         print("eWeLink DIY plug found: "+self.getdevid(name))
+         misc.addLog(0,"eWeLink DIY plug found: "+self.getdevid(name))
 #         print("Service %s added, service info: %s" % (name, info))
 
-    def statechanged(self,devid,state,battery,outlet=0):
-#      print(devid," ",state," ",battery)
+    def statechanged(self,devid,state,rssi,outlet=0):
       if self.event_handler is not None:
        try:
-        self.event_handler(devid,state,battery)
+        self.event_handler(devid,state,rssi)
        except:
         pass
 
@@ -85,12 +85,12 @@ class SonoffDIYListener:
 #           print(self.getdevid(name)," ",parseAddress(i.address)," ",i.port," ")
            data = json.loads(i.properties[b'data1'].decode())
 #           print(data["switch"],data["rssi"])
-           cstat = getstate(data["switch"])
+           cstat = getstatus(data["switch"])
            if cstat!=self.status[name]:
             self.status[name]=cstat
             self.statechanged(self.getdevid(name),cstat,int(data["rssi"]))
           except Exception as e:
-           print(e)
+           misc.addLog(0,str(e))
       time.sleep(0.5)
 
     def stoploop(self):
@@ -100,7 +100,6 @@ class SonoffDIYListener:
         for name,stype in self.devices.items():
          if "_"+str(devid)+"." in name:
           i = self.zeroconf.get_service_info(stype, name)
-#          print(parseAddress(i.address),":",i.port)
           data = {}
           url = "http://" + parseAddress(i.address) + ":" + str(i.port) + "/zeroconf/switch" # create url for switching
           data["sequence"] = str(int(time.time()))
@@ -111,8 +110,17 @@ class SonoffDIYListener:
                 data["data"] = {"switch": "off"}
           if self.sendwithecho==False:
            self.status[name]=int(state)
-#          print(devid,state)
+           misc.addLog(1,"Sending POST command "+str(state)+" to "+str(devid))
           self.send_data(send_url=url, send_data=data)
+          break
+ 
+    def getstate(self,devid):
+        res = -1
+        for name,astatus in self.status.items():
+         if "_"+str(devid)+"." in name:
+          res = astatus
+          break
+        return res  
 
     def send_data(self, send_url, send_data):
        try:

@@ -7,6 +7,7 @@
 import paho.mqtt.client as mqtt
 import time
 import json
+import misc
 
 def mapRSSItoDomoticz(rssi):
  try: 
@@ -56,7 +57,7 @@ class Controller():
   self.initialized = True
   if self.enabled:
    if self.isconnected()==False:
-    print("MQTT: Try to connect")
+    misc.addLog(0,"MQTT: Try to connect")
     self.connect()
   else:
    self.disconnect()
@@ -65,13 +66,13 @@ class Controller():
  def connect(self):
   if self.enabled and self.initialized:
    if self.isconnected():
-    print("Already connected force disconnect!")
+    misc.addLog(0,"Already connected force disconnect!")
     self.disconnect()
    self.connectinprogress = 1
    self.lastreconnect = time.time()
    if (self.controlleruser!="" or self.controllerpassword!="") and (self.isconnected() == False):
     self.mqttclient.username_pw_set(self.controlleruser,self.controllerpassword)
-    print("Set MQTT password")
+    misc.addLog(0,"Set MQTT password")
    try:
     kp = self.keepalive
    except:
@@ -80,7 +81,7 @@ class Controller():
     self.mqttclient.connect(self.controllerip,int(self.controllerport),keepalive=self.keepalive) # connect_async() is faster but maybe not the best for user/pass method
     self.mqttclient.loop_start()
    except Exception as e:
-    print("MQTT controller: "+self.controllerip+":"+str(self.controllerport)+" connection failed "+str(e))
+    misc.addLog(0,"MQTT controller: "+self.controllerip+":"+str(self.controllerport)+" connection failed "+str(e))
   return self.isconnected()
 
  def disconnect(self):
@@ -94,7 +95,7 @@ class Controller():
     pass
    stat=self.isconnected()
    if self.enabled!=True:
-    print("MQTT Disconnected")
+    misc.addLog(0,"MQTT Disconnected")
    return stat
 
  def isconnected(self,ForceCheck=True):
@@ -116,9 +117,9 @@ class Controller():
      res = 0 # not connected
    if res != self.laststatus:
     if res==0:
-     print("MQTT Disconnected")
+     misc.addLog(0,"MQTT Disconnected")
     else:
-     print("MQTT Connected")
+     misc.addLog(0,"MQTT Connected")
     self.laststatus = res
    if res == 1 and self.connectinprogress==1:
     self.connectinprogress=0
@@ -152,7 +153,7 @@ class Controller():
    try:
     list = json.loads(msg2)
    except Exception as e:
-    print("JSON decode error:"+str(e)+str(msg2))
+    misc.addLog(0,"JSON decode error:"+str(e)+str(msg2))
     list = []
   if (list) and (len(list)>0):
    try:
@@ -209,7 +210,7 @@ class Controller():
     else:
      tval[0] = str(nvalue)
    if decodeerr:
-    print("JSON decode error: "+msg2)
+    misc.addLog(0,"JSON decode error: "+msg2)
    else:
     self.onmsgcallbackfunc(devidx,tval)
 
@@ -232,7 +233,7 @@ class Controller():
      if mres!=0:
        self.isconnected()
    else:
-    print("MQTT not connected, sending failed.")
+    misc.addLog(0,"MQTT not connected, sending failed.")
     if (time.time()-self.lastreconnect)>30:
      self.connect()
 
@@ -246,15 +247,16 @@ class Controller():
      msg = domomsg.format(str(idx), int(stateid), mStates[stateid],mapRSSItoDomoticz(rssi))
      mres = 1
      try:
+       misc.addLog(1,"MQTT sending "+str(msg)+" to "+str(self.pubchannel))
        (mres,mid) = self.mqttclient.publish(self.pubchannel,msg)
      except:
        mres = 1
      if mres!=0:
        self.isconnected()
     else:
-     print("MQTT idx error, sending failed.")
+     misc.addLog(0,"MQTT idx error, sending failed.")
    else:
-    print("MQTT not connected, sending failed.")
+    misc.addLog(0,"MQTT not connected, sending failed.")
     if (time.time()-self.lastreconnect)>30:
      self.connect()
 
@@ -280,7 +282,7 @@ class DMQTTClient(mqtt.Client):
    if self.connectcb is not None:
     self.connectcb()
   except Exception as e:
-   print("MQTT connection error: "+str(e))
+   misc.addLog(0,"MQTT connection error: "+str(e))
   try:
    rc = int(rc)
   except:
@@ -295,7 +297,7 @@ class DMQTTClient(mqtt.Client):
       estr += " User/pass error!"
    if rc==5:
       estr += " Not authorized!"
-   print("MQTT connection error: "+estr)
+   misc.addLog(0,"MQTT connection error: "+estr)
 
  def on_disconnect(self, client, userdata, rc):
   if self.disconnectcb is not None:
